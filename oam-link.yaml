@@ -11,7 +11,7 @@ Parameters:
     Description: The environment to target for monitoring
   MonitoringAccountId:
     Type: String
-  SinkIdentitifier:
+  SinkIdentifier:
     Type: String
   TargetOrganizationalUnitId:
     Type: String
@@ -33,14 +33,15 @@ Resources:
       AutoDeployment:
         Enabled: true
         RetainStacksOnAccountRemoval: false
+      CallAs: DELEGATED_ADMIN
       Description: Observability managed stack, creating an Observability Access Manager Link to the central montoring account.
       ManagedExecution:
         Active: true
       Parameters:
         - ParameterKey: MonitoringAccountId
           ParameterValue: !Ref MonitoringAccountId
-        - ParameterKey: SinkIdentitifier
-          ParameterValue: !Ref SinkIdentitifier
+        - ParameterKey: SinkIdentifier
+          ParameterValue: !Ref SinkIdentifier
       PermissionModel: SERVICE_MANAGED
       StackInstancesGroup:
         - DeploymentTargets:
@@ -67,7 +68,7 @@ Resources:
         Parameters:
           MonitoringAccountId:
             Type: String
-          SinkIdentitifier:
+          SinkIdentifier:
             Type: String
 
         Conditions:
