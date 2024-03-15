@@ -52,7 +52,7 @@ Resources:
             Accounts: !Ref AdditionalAccounts
             AccountFilterType: !Ref AccountFilterType
           Regions: !Ref Regions
-      StackSetName: observability-monitoring-link
+      StackSetName: !Ref AWS::StackName
       Tags:
         - Key: Name
           Value: observability-monitoring-link
