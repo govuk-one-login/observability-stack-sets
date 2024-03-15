@@ -13,8 +13,8 @@ Parameters:
     Type: String
   SinkIdentifier:
     Type: String
-  TargetOrganizationalUnitId:
-    Type: String
+  TargetOrganizationalUnitIds:
+    Type: List<String>
   AdditionalAccounts:
     Type: List<String>
     Default: ""
@@ -26,6 +26,9 @@ Parameters:
       - DIFFERENCE
       - UNION
       - NONE
+  Regions:
+    Type: List<String>
+    Default: eu-west-2
 Resources:
   StackSet:
     Type: AWS::CloudFormation::StackSet
@@ -45,13 +48,10 @@ Resources:
       PermissionModel: SERVICE_MANAGED
       StackInstancesGroup:
         - DeploymentTargets:
-            OrganizationalUnitIds:
-              - !Ref TargetOrganizationalUnitId
+            OrganizationalUnitIds: !Ref TargetOrganizationalUnitIds
             Accounts: !Ref AdditionalAccounts
             AccountFilterType: !Ref AccountFilterType
-          Regions:
-            - eu-west-2
-            - us-east-1
+          Regions: !Ref Regions
       StackSetName: observability-monitoring-link
       Tags:
         - Key: Name
