@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: StackSet to deploy Observability Access Manager Links to accounts
+Parameters:
+  Environment:
+    Type: String
+    Default: development
+    AllowedValues:
+      - development
+      - nonproduction
+      - production
+    Description: The environment to target for monitoring
+  MonitoringAccountId:
+    Type: String
+  SinkIdentitifier:
+    Type: String
+  TargetOrganizationalUnitId:
+    Type: String
+  AdditionalAccounts:
+    Type: List<String>
+    Default: ""
+  AccountFilterType:
+    Type: String
+    Default: UNION
+    AllowedValues:
+      - INTERSECTION
+      - DIFFERENCE
+      - UNION
+      - NONE
+Resources:
+  StackSet:
+    Type: AWS::CloudFormation::StackSet
+    Properties:
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      Description: Observability managed stack, creating an Observability Access Manager Link to the central montoring account.
+      ManagedExecution:
+        Active: true
+      Parameters:
+        - ParameterKey: MonitoringAccountId
+          ParameterValue: !Ref MonitoringAccountId
+        - ParameterKey: SinkIdentitifier
+          ParameterValue: !Ref SinkIdentitifier
+      PermissionModel: SERVICE_MANAGED
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds:
+              - !Ref TargetOrganizationalUnitId
+            Accounts: !Ref AdditionalAccounts
+            AccountFilterType: !Ref AccountFilterType
+          Regions:
+            - eu-west-2
+            - us-east-1
+      StackSetName: observability-monitoring-link
+      Tags:
+        - Key: Name
+          Value: observability-monitoring-link
+        - Key: Product
+          Value: GOV.UK One Login
+        - Key: System
+          Value: Observability
+        - Key: Environment
+          Value: !Ref Environment
+      TemplateBody: |-
+        AWSTemplateFormatVersion: 2010-09-09
+
+        Parameters:
+          MonitoringAccountId:
+            Type: String
+          SinkIdentitifier:
+            Type: String
+
+        Conditions:
+          SkipMonitoringAccount: !Not
+            - !Equals
+              - !Ref AWS::AccountId
+              - !Ref MonitoringAccountId
+
+        Resources:
+          Link:
+            Type: AWS::Oam::Link
+            Condition: SkipMonitoringAccount
+            Properties:
+              LabelTemplate: "$AccountName"
+              ResourceTypes: 
+                - "AWS::CloudWatch::Metric"
+              SinkIdentifier: !Ref SinkIdentifier
