@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: StackSet to deploy Observability Access Manager Links to accounts
+
+Conditions:
+  AdditionalAccounts: !Not
+    - !Equals
+      - !Ref AccountFilterType
+      - NONE
+
 Parameters:
   Environment:
     Type: String
@@ -20,7 +27,7 @@ Parameters:
     Default: ""
   AccountFilterType:
     Type: String
-    Default: UNION
+    Default: NONE
     AllowedValues:
       - INTERSECTION
       - DIFFERENCE
@@ -40,6 +47,9 @@ Resources:
       Description: Observability managed stack, creating an Observability Access Manager Link to the central montoring account.
       ManagedExecution:
         Active: true
+      OperationPreferences:
+        FailureTolerancePercentage: 100
+        MaxConcurrentPercentage: 100
       Parameters:
         - ParameterKey: MonitoringAccountId
           ParameterValue: !Ref MonitoringAccountId
@@ -47,10 +57,12 @@ Resources:
           ParameterValue: !Ref SinkIdentifier
       PermissionModel: SERVICE_MANAGED
       StackInstancesGroup:
-        - DeploymentTargets:
-            OrganizationalUnitIds: !Ref TargetOrganizationalUnitIds
-            Accounts: !Ref AdditionalAccounts
-            AccountFilterType: !Ref AccountFilterType
+        - DeploymentTargets: !If
+            - AdditionalAccounts
+            - OrganizationalUnitIds: !Ref TargetOrganizationalUnitIds
+              Accounts: !Ref AdditionalAccounts
+              AccountFilterType: !Ref AccountFilterType
+            - OrganizationalUnitIds: !Ref TargetOrganizationalUnitIds
           Regions: !Ref Regions
       StackSetName: !Ref AWS::StackName
       Tags:
@@ -64,6 +76,7 @@ Resources:
           Value: !Ref Environment
       TemplateBody: |-
         AWSTemplateFormatVersion: 2010-09-09
+        Description: Observability-managed stack, deploys a CloudWatch OAM Link for centralised monitoring.s
 
         Parameters:
           MonitoringAccountId:
