@@ -1,0 +1,18 @@
+# Checkov configuration file
+# Documentation: https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html
+
+# Include specific frameworks for scanning
+framework:
+  - cloudformation
+
+# Use baseline file to suppress known issues
+# Update this with: `checkov --create-baseline`
+# but better to fix findings instead
+# baseline: .checkov.baseline
+
+# Output format
+output: cli
+
+# Other useful settings
+evaluate-variables: true
+summary-position: top
