@@ -24,4 +24,4 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
       - name: Run Checkov
-        uses: govuk-one-login/org-github-actions/checkov@v1
+        uses: govuk-one-login/github-actions/code-quality/run-checkov@6d72d3c80a79ab102d120de5038e75dcf9c6a7fc
