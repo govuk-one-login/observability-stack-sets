@@ -27,3 +27,4 @@ jobs:
         uses: govuk-one-login/github-actions/code-quality/run-checkov@6d72d3c80a79ab102d120de5038e75dcf9c6a7fc
         with:
           config-file: '.checkov.yaml'
+          upload-sarif-file: 'true'
